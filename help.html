@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SLURM Commands</title>
+    <style>
+        body {
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 8px 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        .command {
+            color: #66FF66;
+            font-weight: bold;
+        }
+        p {
+            font-size: 16px;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>SLURM Commands</h1>
+    <p>Type <span class="command">[command]</span> --help for help on that command.</p>
+    <table>
+        <tr>
+            <th>Command</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td><span class="command">sacct</span></td>
+            <td>Displays accounting data for all jobs and job steps in the Slurm job accounting log or Slurm database.</td>
+        </tr>
+        <tr>
+            <td><span class="command">sacctmgr</span></td>
+            <td>Used to view and modify Slurm account information.</td>
+        </tr>
+        <tr>
+            <td><span class="command">salloc</span></td>
+            <td>Obtain a Slurm job allocation (a set of nodes), execute a command, and then release the allocation when the command is finished.</td>
+        </tr>
+        <tr>
+            <td><span class="command">sattach</span></td>
+            <td>Attach to a Slurm job step.</td>
+        </tr>
+        <tr>
+            <td><span class="command">sbatch</span></td>
+            <td>Submit a batch script to Slurm.</td>
+        </tr>
+        <tr>
+            <td><span class="command">sbcast</span></td>
+            <td>Transmit a file to the nodes allocated to a Slurm job.</td>
+        </tr>
+        <tr>
+            <td><span class="command">scancel</span></td>
+            <td>Used to signal jobs or job steps that are under the control of Slurm.</td>
+        </tr>
+        <tr>
+            <td><span class="command">scontrol</span></td>
+            <td>View or modify Slurm configuration and state.</td>
+        </tr>
+        <tr>
+            <td><span class="command">scrontab</span></td>
+            <td>Manage Slurm crontab files.</td>
+        </tr>
+        <tr>
+            <td><span class="command">scrun</span></td>
+            <td>An OCI runtime proxy for slurm.</td>
+        </tr>
+        <tr>
+            <td><span class="command">sdiag</span></td>
+            <td>Scheduling diagnostic tool.</td>
+        </tr>
+        <tr>
+            <td><span class="command">sh5util</span></td>
+            <td>Merge utility for acct_gather_profile plugin.</td>
+        </tr>
+        <tr>
+            <td><span class="command">sinfo</span></td>
+            <td>View information about Slurm nodes and partitions.</td>
+        </tr>
+        <tr>
+            <td><span class="command">sprio</span></td>
+            <td>View the factors that comprise a job's scheduling priority.</td>
+        </tr>
+        <tr>
+            <td><span class="command">squeue</span></td>
+            <td>View information about jobs located in the Slurm scheduling queue.</td>
+        </tr>
+        <tr>
+            <td><span class="command">sreport</span></td>
+            <td>Generate reports from the slurm accounting data.</td>
+        </tr>
+        <tr>
+            <td><span class="command">srun</span></td>
+            <td>Run parallel jobs.</td>
+        </tr>
+        <tr>
+            <td><span class="command">sshare</span></td>
+            <td>Tool for listing the shares of associations to a cluster.</td>
+        </tr>
+        <tr>
+            <td><span class="command">sstat</span></td>
+            <td>Display the status information of a running job/step.</td>
+        </tr>
+        <tr>
+            <td><span class="command">strigger</span></td>
+            <td>Used to set, get or clear Slurm trigger information.</td>
+        </tr>
+        <tr>
+            <td><span class="command">sview</span></td>
+            <td>Graphical user interface to view and modify Slurm state.</td>
+        </tr>
+    </table>
+
+</body>
+</html>
+
