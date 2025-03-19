@@ -1,3 +1,5 @@
 /.vscode
 /venv
 config.json
+# Deploy MacOS
+*dmg

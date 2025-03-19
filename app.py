@@ -115,6 +115,9 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("slurmLab")
         self.setGeometry(100, 100, 1000, 600)
 
+        # Icon application
+        self.setWindowIcon(QIcon("icon.png"))
+
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
