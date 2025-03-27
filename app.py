@@ -3,6 +3,7 @@ import sys
 import paramiko
 import json
 from pathlib import Path
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import (
     QApplication, 
@@ -124,12 +125,13 @@ class MainWindow(QMainWindow):
 
         self.text_edit = QTextEdit()
         self.text_edit.setReadOnly(True)
+        self.text_edit.setAlignment(Qt.AlignCenter)
         self.text_edit.setStyleSheet("""
             QTextEdit {
                 background-color: #2E2E2E;
                 color: white;
                 font-family: "Monaco";
-                font-size: 10pt;
+                font-size: 12pt;
             }
         """)
 
@@ -293,8 +295,10 @@ class MainWindow(QMainWindow):
                 # Show success message
                 QMessageBox.information(self, "SSH Connection", message)
 
-                # Show squeue
-                self.squeue()
+                # Show welcome message
+                welcome_message = f"Welcome! {conn_info['username']} 👤\n\nYou are now connected to {conn_info['host']} 🖥️"
+                self.text_edit.clear()
+                self.text_edit.insertPlainText(welcome_message)
                 
             except Exception as e:
                 QMessageBox.critical(self, "SSH Error", f"Error connecting: {str(e)}")
@@ -325,12 +329,18 @@ class MainWindow(QMainWindow):
         _, stdout, _ = self.ssh_client.exec_command('squeue')
         jobs = stdout.read().decode()
 
-        # Convert the plain text to HTML format
-        html_output = self.convert_to_html(jobs)
+        try:
+            # Convert the plain text to HTML format
+            html_output = self.convert_to_html(jobs)
 
-        # Clear the text edit widget and insert the HTML output
-        self.text_edit.clear()
-        self.text_edit.setHtml(html_output)
+            # Clear the text edit widget and insert the HTML output
+            self.text_edit.clear()
+            self.text_edit.setHtml(html_output)
+        except Exception as e:
+            print(f"Error converting to HTML: {str(e)}")
+            # If there's an error, fall back to plain text
+            self.text_edit.clear()
+            self.text_edit.insertPlainText(jobs)
     
     def squeue_u(self):
         """Execute squeue -u command on the SSH server"""
@@ -338,12 +348,18 @@ class MainWindow(QMainWindow):
         _, stdout, _ = self.ssh_client.exec_command(f'squeue -u {username}')
         jobs_user = stdout.read().decode()
 
-        # Convert the plain text to HTML format
-        html_output = self.convert_to_html(jobs_user)
+        try:
+            # Convert the plain text to HTML format
+            html_output = self.convert_to_html(jobs_user)
 
-        # Clear the text edit widget and insert the HTML output
-        self.text_edit.clear()
-        self.text_edit.setHtml(html_output)
+            # Clear the text edit widget and insert the HTML output
+            self.text_edit.clear()
+            self.text_edit.setHtml(html_output)
+        except Exception as e:
+            print(f"Error converting to HTML: {str(e)}")
+            # Clear the text edit widget and insert the plain text output
+            self.text_edit.clear()
+            self.text_edit.insertPlainText(jobs_user)
 
     def scancel(self):
         diag = ScancelDialog(self)
@@ -390,12 +406,18 @@ class MainWindow(QMainWindow):
         _, stdout, _ = self.ssh_client.exec_command('sinfo')
         sinfo = stdout.read().decode()
         
-        # Convert the plain text to HTML format
-        html_output = self.convert_to_html(sinfo)
+        try:
+            # Convert the plain text to HTML format
+            html_output = self.convert_to_html(sinfo)
 
-        # Clear the text edit widget and insert the HTML output
-        self.text_edit.clear()
-        self.text_edit.setHtml(html_output)
+            # Clear the text edit widget and insert the HTML output
+            self.text_edit.clear()
+            self.text_edit.setHtml(html_output)
+        except Exception as e:
+            print(f"Error converting to HTML: {str(e)}")
+            # Clear the text edit widget and insert the plain text output
+            self.text_edit.clear()
+            self.text_edit.insertPlainText(sinfo)
 
     def convert_to_html(self, jobs):
         """Converts the plain text output of squeue to an HTML table"""
