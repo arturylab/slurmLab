@@ -1,7 +1,7 @@
 import os
 import sys
 import paramiko
-import json
+import dotenv
 from pathlib import Path
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QPixmap
@@ -30,15 +30,7 @@ def get_icon(icon_name):
     icon_path = script_dir / icon_name
     return QIcon(str(icon_path))
 
-def load_config():
-    '''Load configuration from a JSON file.'''
-    try:
-        with open('config.json', 'r') as file:
-            config = json.load(file)
-        return config
-    except FileNotFoundError:
-        print("The config.json file was not found.")
-        return {}
+dotenv.load_dotenv()
 
 class SSHConnectionDialog(QDialog):
     """Dialog to connect to an SSH server"""
@@ -47,14 +39,11 @@ class SSHConnectionDialog(QDialog):
         self.setWindowTitle("Connect to SSH Server")
         self.setMinimumWidth(400)
 
-        # Load config.json
-        config = load_config()
-
         # Create widgets
-        self.host_edit = QLineEdit(config.get('SSH_HOST', ''))
-        self.port_edit = QLineEdit(config.get('SSH_PORT', ''))
-        self.username_edit = QLineEdit(config.get('SSH_USER', ''))
-        self.password_edit = QLineEdit(config.get('SSH_PASSWORD', ''))
+        self.host_edit = QLineEdit(os.getenv('SSH_HOST', ''))
+        self.port_edit = QLineEdit(os.getenv('SSH_PORT', ''))
+        self.username_edit = QLineEdit(os.getenv('SSH_USER', ''))
+        self.password_edit = QLineEdit(os.getenv('SSH_PASSWORD', ''))
         self.password_edit.setEchoMode(QLineEdit.Password)
         
         # Create buttons
@@ -123,16 +112,18 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
 
+        self.font_size = 10
+
         self.text_edit = QTextEdit()
         self.text_edit.setReadOnly(True)
         self.text_edit.setAlignment(Qt.AlignCenter)
-        self.text_edit.setStyleSheet("""
-            QTextEdit {
-                background-color: #2E2E2E;
-                color: white;
-                font-family: "Monaco";
-                font-size: 12pt;
-            }
+        self.text_edit.setStyleSheet(f"""
+            QTextEdit {{
+            background-color: #2E2E2E;
+            color: white;
+            font-family: "Monaco";
+            font-size: {self.font_size}pt;
+            }}
         """)
 
         layout.addWidget(self.text_edit)
@@ -215,6 +206,18 @@ class MainWindow(QMainWindow):
         toolbar.addAction(self.select_all_action)
         edit_menu.addAction(self.select_all_action)
 
+        # Font Size
+        self.increase_font_action = QAction(get_icon("icons/icons8-increase-font-48.png"), "Increase Font Size", self)
+        self.increase_font_action.triggered.connect(self.increase_font_size)
+        toolbar.addAction(self.increase_font_action)
+        edit_menu.addAction(self.increase_font_action)
+
+        # Decrease Font Size
+        self.decrease_font_action = QAction(get_icon("icons/icons8-decrease-font-48.png"), "Decrease Font Size", self)
+        self.decrease_font_action.triggered.connect(self.decrease_font_size)
+        toolbar.addAction(self.decrease_font_action)
+        edit_menu.addAction(self.decrease_font_action)
+
         toolbar.addSeparator()
 
         # MONITOR
@@ -251,6 +254,13 @@ class MainWindow(QMainWindow):
         toolbar.addAction(self.sinfo_action)
         cluster_menu.addAction(self.sinfo_action)
 
+        # sdiag
+        self.sdiag_action = QAction(get_icon("icons/icons8-discussion-forum-48.png"), "sinfo", self)
+        self.sdiag_action.setEnabled(False)
+        self.sdiag_action.triggered.connect(self.sdiag)
+        toolbar.addAction(self.sdiag_action)
+        cluster_menu.addAction(self.sdiag_action)
+
         toolbar.addSeparator()
 
         # HELP
@@ -285,6 +295,7 @@ class MainWindow(QMainWindow):
                 self.squeue_u_action.setEnabled(True)
                 self.scancel_action.setEnabled(True)
                 self.sinfo_action.setEnabled(True)
+                self.sdiag_action.setEnabled(True)
                 self.cmd_type.setEnabled(True)
                 
                 message = f"Connected to {conn_info['host']} as {conn_info['username']}"
@@ -316,6 +327,7 @@ class MainWindow(QMainWindow):
             self.squeue_u_action.setEnabled(False)
             self.scancel_action.setEnabled(False)
             self.sinfo_action.setEnabled(False)
+            self.sdiag_action.setEnabled(False)
             self.cmd_type.setEnabled(False)
 
             # Show message in status bar disconnected
@@ -418,6 +430,24 @@ class MainWindow(QMainWindow):
             # Clear the text edit widget and insert the plain text output
             self.text_edit.clear()
             self.text_edit.insertPlainText(sinfo)
+    
+    def sdiag(self):
+        """Execute sdiag fo command on the SSH server"""
+        _, stdout, _ = self.ssh_client.exec_command('sdiag')
+        sdiag = stdout.read().decode()
+        
+        try:
+            # Convert the plain text to HTML format
+            html_output = self.convert_to_html(sdiag)
+
+            # Clear the text edit widget and insert the HTML output
+            self.text_edit.clear()
+            self.text_edit.setHtml(html_output)
+        except Exception as e:
+            print(f"Error converting to HTML: {str(e)}")
+            # Clear the text edit widget and insert the plain text output
+            self.text_edit.clear()
+            self.text_edit.insertPlainText(sdiag)
 
     def convert_to_html(self, jobs):
         """Converts the plain text output of squeue to an HTML table"""
@@ -467,6 +497,11 @@ class MainWindow(QMainWindow):
                         html += f'<td style="color: #008BFC; font-style: italic;">{column}</td>'
                     else:
                         html += f'<td>{column}</td>'
+                elif headers[i] == 'STATE':
+                    if column == 'down' or column == 'down*':
+                        html += f'<td style="color: #FF5555;">{column}</td>'
+                    else:
+                        html += f'<td>{column}</td>'
                 else:
                     html += f'<td>{column}</td>'
             html += '</tr>'
@@ -507,6 +542,30 @@ class MainWindow(QMainWindow):
         except Exception as e:
             self.text_edit.setPlainText(f"Error opening the file: {str(e)}")
 
+    def increase_font_size(self):
+        """Increase the font size of the text edit"""
+        self.font_size += 1
+        self.text_edit.setStyleSheet(f"""
+            QTextEdit {{
+            background-color: #2E2E2E;
+            color: white;
+            font-family: "Monaco";
+            font-size: {self.font_size}pt;
+            }}
+        """)
+
+    def decrease_font_size(self):
+        """Decrease the font size of the text edit"""
+        if self.font_size > 1:  # Prevent font size from becoming too small
+            self.font_size -= 1
+            self.text_edit.setStyleSheet(f"""
+            QTextEdit {{
+            background-color: #2E2E2E;
+            color: white;
+            font-family: "Monaco";
+            font-size: {self.font_size}pt;
+            }}
+            """)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
