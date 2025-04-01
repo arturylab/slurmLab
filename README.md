@@ -22,10 +22,12 @@ slurmLab is a Python-based GUI application designed to manage and monitor SLURM 
 
 ## Requirements 🧩
 
-- Python 3.6+ 🐍
-- paramiko==3.5.1 🔑
-- PyQt5==5.15.11 🎨
-- PyQt5-Qt5==5.15.16 🖥️
+- dotenv==0.9.9
+- paramiko==3.5.1
+- PyQt5==5.15.11
+- PyQt5-Qt5==5.15.16
+- PyQt5_sip==12.17.0
+- python-dotenv==1.1.0
 
 ## Installation 📦
 
@@ -33,16 +35,14 @@ slurmLab is a Python-based GUI application designed to manage and monitor SLURM 
    ```bash
    git clone https://github.com/arturylab/slurmLab.git
 
-2. Create a `config.json` file in the root directory of the project and add your SSH credentials to connect to the server. The application uses this file to establish the connection.
+2. Create a `.env` file in the root directory of the project and add your SSH credentials to connect to the server. The application uses this file to establish the connection.
 
-    Example `config.json`:
-    ```json
-    {
-         "SSH_HOST": "your.server.com",
-         "SSH_PORT": 22,
-         "SSH_USER": "your_username",
-         "SSH_PASSWORD": "your_password"
-    }
-    ```
+  Example `.env` file:
+  ```env
+  SSH_HOST=your.server.com
+  SSH_PORT=22
+  SSH_USER=your_username
+  SSH_PASSWORD=your_password
+  ```
 
-    Replace `your.server.com`, `your_username`, and `your_password` with your actual SSH connection details.
+  Replace `your.server.com`, `your_username`, and `your_password` with your actual SSH connection details.
